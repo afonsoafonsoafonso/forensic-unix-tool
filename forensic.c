@@ -14,13 +14,13 @@
 #include "funcs.h"
 #include "utils.h"
 
-int main(int argc, char** argv)
+int main(int argc, char* argv[])
 {
     struct argFlags arg_flags;
 
-    if (argc < 2)
+    if (argc < 2 || argc>8)
     {
-        printf("To use the forensic tool, use the following syntax:\nforensic [-r] [-h [md5[,sha1[,sha256]]] [-o <outfile>] [-v] <file|dir>\n");      
+        perror("To use the forensic tool, use the following syntax:\nforensic [-r] [-h [md5[,sha1[,sha256]]] [-o <outfile>] [-v] <file|dir>\n");      
         exit(1);
     }
 
@@ -28,7 +28,7 @@ int main(int argc, char** argv)
     //arg_parser_test(arg_flags);
 
     if(arg_flags.dir_full_search==1 && is_dir(arg_flags.path)<=0)
-        printf("Given path is not a folder");
+        printf("Given path is not a folder.\n");
 
     print_file_data(argv[argc-1],arg_flags);
 
