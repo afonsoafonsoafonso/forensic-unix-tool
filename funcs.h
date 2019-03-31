@@ -13,4 +13,5 @@
 #include "utils.h"
 
 struct argFlags arg_parser(int argc, char** argv);
+void treat_dir(char path[], struct argFlags arg_flags);
 void print_file_data(const char *file, struct argFlags arg_flags);

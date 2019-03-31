@@ -9,6 +9,7 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <string.h>
+#include <fcntl.h>
 
 #include "flags.h"
 #include "funcs.h"
@@ -26,11 +27,26 @@ int main(int argc, char* argv[])
 
     arg_flags=arg_parser(argc,argv);
     //arg_parser_test(arg_flags);
+    
+    int fd_outfile;
+    //checking for output file
+    if (arg_flags.outfile)
+    {
+        printf("Data saved on file %s\n", arg_flags.outfile_name);
+        printf("Execution records saved on file ...\n");
+        fd_outfile=open(arg_flags.outfile_name, O_WRONLY | O_APPEND | O_CREAT);
+        if (fd_outfile<0)
+        {
+            printf("Error on opening output file.\n");
+            exit(10);
+        }
+        dup2(fd_outfile, STDOUT_FILENO);
+    }
 
     if(arg_flags.dir_full_search==1 && is_dir(arg_flags.path)<=0)
         printf("Given path is not a folder.\n");
 
-    print_file_data(argv[argc-1],arg_flags);
+    treat_dir(argv[argc-1],arg_flags);
 
     exit(0);
 }

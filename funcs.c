@@ -7,7 +7,7 @@
 #include <sys/stat.h>
 #include <string.h>
 #include <time.h>
-#include <fcntl.h>
+#include <dirent.h>
 
 #include "flags.h"
 #include "utils.h"
@@ -74,25 +74,10 @@ struct argFlags arg_parser(int argc, char** argv) {
     return arg_flags;
 }
 
-//falta adicionar verificação de file_type mas como será usando "file",
-//invés da "stat", fica para depois
+
 void print_file_data(const char* path, struct argFlags arg_flags) {
     struct stat fs; //fs: file_stat
     stat(path,&fs);
-    int fd_outfile;
-    //checking for output file
-    if (arg_flags.outfile)
-    {
-        printf("Data saved on file %s\n", arg_flags.outfile_name);
-        printf("Execution records saved on file ...\n");
-        fd_outfile=open(arg_flags.outfile_name, O_WRONLY | O_APPEND | O_CREAT);
-        if (fd_outfile<0)
-        {
-            printf("Error on opening output file.\n");
-            exit(10);
-        }
-        dup2(fd_outfile, STDOUT_FILENO);
-    }
 
     //prints file name
     printf("%s,",path);
@@ -174,7 +159,46 @@ void print_file_data(const char* path, struct argFlags arg_flags) {
     }
 
     printf("\n");
-    if (arg_flags.outfile)
-        close(fd_outfile);
     return;
+}
+
+
+void treat_dir(char path[], struct argFlags arg_flags)
+{
+    if (is_dir(path))
+    {
+        struct dirent *de;  
+        DIR *dr = opendir(path); 
+        if (dr == NULL)
+        { 
+            printf("%s", path);
+            perror("Could not open current directory" ); 
+            exit(7); 
+        } 
+        while ((de = readdir(dr)) != NULL)
+        {
+            if (strcmp(de->d_name,".")==0 || strcmp(de->d_name,"..")==0)
+                continue;
+            int pid=fork();
+            if (pid<0)
+            {
+                perror("Error in fork.\n");
+                exit(7);
+            }
+            if (pid==0)
+            {
+                if (chdir(path)<0)
+                {
+                    perror("Error in changing directory.\n");
+                    exit(7);
+                }
+                treat_dir(de->d_name, arg_flags);
+                exit(0);
+            }
+            wait(NULL);
+        }
+        closedir(dr);
+    }
+    else
+        print_file_data(path, arg_flags);
 }
