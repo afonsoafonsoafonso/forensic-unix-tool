@@ -126,7 +126,7 @@ void print_file_data(const char* path, struct argFlags arg_flags) {
     printf("%d-%d-%dT%d:%d:%d", mt->tm_year, mt->tm_mon, mt->tm_mday, mt->tm_hour, mt->tm_min, mt->tm_sec);
     
     //running hash calculations
-    if(arg_flags.hash_calc) {
+    if(arg_flags.hash_calc && !is_dir(path)) {
         char hash[300];
         if(arg_flags.hash_flags.md5) {
             printf(",");
@@ -192,7 +192,10 @@ void treat_dir(char path[], struct argFlags arg_flags)
                     perror("Error in changing directory.\n");
                     exit(7);
                 }
-                treat_dir(de->d_name, arg_flags);
+                if (arg_flags.dir_full_search)
+                    treat_dir(de->d_name, arg_flags);
+                else   
+                    print_file_data(de->d_name, arg_flags);
                 exit(0);
             }
             wait(NULL);
