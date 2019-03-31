@@ -7,10 +7,14 @@
 #include <sys/stat.h>
 #include <string.h>
 #include <time.h>
+#include <math.h>
 #include <dirent.h>
 
 #include "flags.h"
 #include "utils.h"
+
+long ms_start = 0;
+int s_start = 0;
 
 // TO-DO: mais tarde mudar esta função (e outras) para outro ficheiro com respetivo header
 //adicionar também verificação de argumentos válidos
@@ -204,4 +208,29 @@ void treat_dir(char path[], struct argFlags arg_flags)
     }
     else
         print_file_data(path, arg_flags);
+}
+
+void print_logfile(char* act, struct argFlags arg_flags)
+{
+    struct timespec spec;
+    clock_gettime(CLOCK_REALTIME, &spec);
+    int s_end = spec.tv_sec;
+    long ms_end = spec.tv_nsec / 1.0e6; // Convert nanoseconds to milliseconds
+    if (ms_end > 999)
+    {
+        s_end++;
+        ms_end = 0;
+    }
+
+    FILE* f=fopen(arg_flags.logfile_name, "a");
+
+    long to_print=s_start-s_end;
+    to_print=to_print*3;
+    to_print+=ms_start;
+    to_print-=ms_end;
+    //2 casas decimais
+    to_print=round(to_print*2);
+    to_print=to_print/2;
+
+    fprintf(f, "%ld - %d - %s\n", to_print, getpid(), act);
 }

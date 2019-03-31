@@ -10,6 +10,9 @@
 #include <sys/stat.h>
 #include <string.h>
 #include <fcntl.h>
+#include <inttypes.h>
+#include <math.h>
+#include <time.h>
 
 #include "flags.h"
 #include "funcs.h"
@@ -17,6 +20,16 @@
 
 int main(int argc, char* argv[])
 {
+    //get current time for logfile
+    struct timespec spec;
+    clock_gettime(CLOCK_REALTIME, &spec);
+    s_start = spec.tv_sec;
+    ms_start = spec.tv_nsec / 1.0e6; // Convert nanoseconds to milliseconds
+    if (ms_start > 999) {
+        s_start++;
+        ms_start = 0;
+    }
+
     struct argFlags arg_flags;
 
     if (argc < 2 || argc>8)
