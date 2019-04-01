@@ -18,6 +18,8 @@ int s_start = 0;
 int logfile;
 char logfilename[255];
 
+void print_logfile(const char* act,const char* act2);
+
 // TO-DO: mais tarde mudar esta função (e outras) para outro ficheiro com respetivo header
 //adicionar também verificação de argumentos válidos
 struct argFlags arg_parser(int argc, char** argv) {
@@ -218,7 +220,7 @@ void treat_dir(char path[], struct argFlags arg_flags)
         print_file_data(path, arg_flags);
 }
 
-void print_logfile(char* act,char* act2)
+void print_logfile(const char* act,const char* act2)
 {
     if (!logfile) return;
     char * newstr;
