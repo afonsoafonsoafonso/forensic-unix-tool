@@ -18,8 +18,22 @@
 #include "funcs.h"
 #include "utils.h"
 
+void sigint_handler(int signo) {  
+    printf("In SIGINT handler ...\n");
+    arg_flags.end=1;
+    print_logfile("Signal ","SIGINT");
+} 
+
 int main(int argc, char* argv[])
 {
+    struct sigaction action;
+    action.sa_handler=sigint_handler;
+    action.sa_flags=SA_RESTART;
+    sigemptyset(&action.sa_mask);
+    if (sigaction(SIGINT,&action,NULL) < 0)   {
+        fprintf(stderr,"Unable to install SIGINT handler\n");     
+        exit(1);   }   
+
     //get current time for logfile
     struct timespec spec;
     clock_gettime(CLOCK_REALTIME, &spec);
@@ -30,14 +44,13 @@ int main(int argc, char* argv[])
         ms_start -= 1000;
     }
 
-    struct argFlags arg_flags;
-
     if (argc < 2 || argc>8)
     {
         perror("To use the forensic tool, use the following syntax:\nforensic [-r] [-h [md5[,sha1[,sha256]]] [-o <outfile>] [-v] <file|dir>\n");      
         exit(1);
     }
-    arg_flags=arg_parser(argc,argv);
+    //arg_flags=
+    arg_parser(argc,argv);
     //arg_parser_test(arg_flags);
     
     //PERGUNTA:é suposto apagar o antigo?
@@ -66,7 +79,7 @@ int main(int argc, char* argv[])
     if(arg_flags.dir_full_search==1 && is_dir(arg_flags.path)<=0)
         printf("Given path is not a folder.\n");
 
-    treat_dir(argv[argc-1],arg_flags);
+    treat_dir(argv[argc-1]);//,arg_flags);
     if (arg_flags.logfile){fclose(arg_flags.f);}
     exit(0);
 }

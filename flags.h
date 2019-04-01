@@ -14,6 +14,7 @@ struct argFlags {
     struct hash_flags hash_flags;
     int logfile;
     int outfile;
+    int end;
     FILE* f;
     char logfile_name[255];
     char outfile_name[255]; //255 is, normally, the max file name lenght on UNIX
