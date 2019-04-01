@@ -15,6 +15,8 @@
 
 long ms_start = 0;
 int s_start = 0;
+int logfile;
+char logfilename[255];
 
 // TO-DO: mais tarde mudar esta função (e outras) para outro ficheiro com respetivo header
 //adicionar também verificação de argumentos válidos
@@ -57,8 +59,11 @@ struct argFlags arg_parser(int argc, char** argv) {
             h_can=0;
             o_can=0;
             if(getenv("LOGFILENAME")!=NULL ) {
+                print_logfile("READ ","logfilename");
                 strcpy(arg_flags.logfile_name,getenv("LOGFILENAME")); 
                 arg_flags.logfile=1;
+                logfile=1;
+                strcpy(logfilename,arg_flags.logfile_name);
             }
             else perror("Environment variable not set. -v argument will be ignored\n\n\n");
         }
@@ -75,10 +80,11 @@ struct argFlags arg_parser(int argc, char** argv) {
         exit(3);
     }
     strcpy(arg_flags.path,argv[argc-1]);
+    print_logfile("READ ","command flags");
     return arg_flags;
 }
 
-
+ //TODO fix date lenght/use strftime
 void print_file_data(const char* path, struct argFlags arg_flags) {
     struct stat fs; //fs: file_stat
     stat(path,&fs);
@@ -163,6 +169,7 @@ void print_file_data(const char* path, struct argFlags arg_flags) {
     }
 
     printf("\n");
+    print_logfile("ANALIZED ",path);
     return;
 }
 
@@ -205,24 +212,29 @@ void treat_dir(char path[], struct argFlags arg_flags)
             wait(NULL);
         }
         closedir(dr);
+        print_logfile("ANALIZED DIRECTORY ",path);
     }
     else
         print_file_data(path, arg_flags);
 }
 
-void print_logfile(char* act, struct argFlags arg_flags)
+void print_logfile(char* act,char* act2)
 {
+    if (!logfile) return;
+    char * newstr;
+    strcpy(newstr,act);
+    strcat(newstr,act2);
     struct timespec spec;
     clock_gettime(CLOCK_REALTIME, &spec);
     int s_end = spec.tv_sec;
     long ms_end = spec.tv_nsec / 1.0e6; // Convert nanoseconds to milliseconds
-    if (ms_end > 999)
+    while (ms_end > 999)
     {
         s_end++;
-        ms_end = 0;
+        ms_end -= 1000;
     }
 
-    FILE* f=fopen(arg_flags.logfile_name, "a");
+    FILE* f=fopen(logfilename, "a");
 
     long to_print=s_start-s_end;
     to_print=to_print*3;

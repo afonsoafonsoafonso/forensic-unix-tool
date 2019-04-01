@@ -25,9 +25,9 @@ int main(int argc, char* argv[])
     clock_gettime(CLOCK_REALTIME, &spec);
     s_start = spec.tv_sec;
     ms_start = spec.tv_nsec / 1.0e6; // Convert nanoseconds to milliseconds
-    if (ms_start > 999) {
+    while(ms_start > 999) {
         s_start++;
-        ms_start = 0;
+        ms_start -= 1000;
     }
 
     struct argFlags arg_flags;
@@ -41,6 +41,12 @@ int main(int argc, char* argv[])
     arg_flags=arg_parser(argc,argv);
     //arg_parser_test(arg_flags);
     
+    //PERGUNTA:é suposto apagar o antigo?
+    if (arg_flags.logfile){//empties previously existing file
+        FILE* f=fopen(arg_flags.logfile_name, "w");
+        fclose(f);
+    }
+
     int fd_outfile;
     //checking for output file
     if (arg_flags.outfile)
