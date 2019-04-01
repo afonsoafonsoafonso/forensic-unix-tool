@@ -124,10 +124,10 @@ void print_file_data(const char* path, struct argFlags arg_flags) {
     //prints dates
     struct tm *at;
     at=gmtime(&fs.st_atime);
-    printf("%d-%d-%dT%d:%d:%d,", at->tm_year, at->tm_mon, at->tm_mday, at->tm_hour, at->tm_min, at->tm_sec);
+    printf("%d-%d-%dT%d:%d:%d,", at->tm_year+1900, at->tm_mon+1, at->tm_mday, at->tm_hour, at->tm_min, at->tm_sec);
     struct tm *mt;
     mt=gmtime(&fs.st_mtime);
-    printf("%d-%d-%dT%d:%d:%d", mt->tm_year, mt->tm_mon, mt->tm_mday, mt->tm_hour, mt->tm_min, mt->tm_sec);
+    printf("%d-%d-%dT%d:%d:%d", mt->tm_year+1900, mt->tm_mon+1, mt->tm_mday, mt->tm_hour, mt->tm_min, mt->tm_sec);
     
     //running hash calculations
     if(arg_flags.hash_calc && !is_dir(path)) {
