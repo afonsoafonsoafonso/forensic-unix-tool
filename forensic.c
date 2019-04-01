@@ -41,10 +41,10 @@ int main(int argc, char* argv[])
     //arg_parser_test(arg_flags);
     
     //PERGUNTA:é suposto apagar o antigo?
-  /*  if (arg_flags.logfile){//empties previously existing file
+    if (arg_flags.logfile){//empties previously existing file
         FILE* f=fopen(arg_flags.logfile_name, "w");
         fclose(f);
-    }*/
+    }
 
     int fd_outfile;
     //checking for output file

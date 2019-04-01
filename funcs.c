@@ -240,9 +240,9 @@ void print_logfile(const char* act,const char* act2)
     FILE* f=fopen(logfilename, "a");
 
     long to_print=s_end-s_start;
-    to_print=to_print*1.0e3;
-    to_print+=ms_start;
-    to_print-=ms_end;
+    to_print*=1.0e3;
+    to_print-=ms_start;
+    to_print+=ms_end;
     //2 casas decimais
     to_print=round(to_print*2);
     to_print=to_print/2;
