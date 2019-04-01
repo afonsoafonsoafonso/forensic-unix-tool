@@ -37,15 +37,14 @@ int main(int argc, char* argv[])
         perror("To use the forensic tool, use the following syntax:\nforensic [-r] [-h [md5[,sha1[,sha256]]] [-o <outfile>] [-v] <file|dir>\n");      
         exit(1);
     }
-
     arg_flags=arg_parser(argc,argv);
     //arg_parser_test(arg_flags);
     
     //PERGUNTA:é suposto apagar o antigo?
-    if (arg_flags.logfile){//empties previously existing file
+  /*  if (arg_flags.logfile){//empties previously existing file
         FILE* f=fopen(arg_flags.logfile_name, "w");
         fclose(f);
-    }
+    }*/
 
     int fd_outfile;
     //checking for output file

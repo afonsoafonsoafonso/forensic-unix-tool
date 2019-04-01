@@ -15,7 +15,7 @@
 
 long ms_start = 0;
 int s_start = 0;
-int logfile;
+int printlogfile;
 char logfilename[255];
 
 void print_logfile(const char* act,const char* act2);
@@ -31,7 +31,7 @@ struct argFlags arg_parser(int argc, char** argv) {
         if(r_can && (strcmp(argv[i],"-r")==0)) {
             arg_flags.dir_full_search=1;
         }
-
+         
         else if(h_can && (strcmp(argv[i],"-h")==0)) {
             r_can=0;
             arg_flags.hash_calc=1;
@@ -61,11 +61,12 @@ struct argFlags arg_parser(int argc, char** argv) {
             h_can=0;
             o_can=0;
             if(getenv("LOGFILENAME")!=NULL ) {
-                print_logfile("READ ","logfilename");
+                
                 strcpy(arg_flags.logfile_name,getenv("LOGFILENAME")); 
                 arg_flags.logfile=1;
-                logfile=1;
+                printlogfile=1;
                 strcpy(logfilename,arg_flags.logfile_name);
+                print_logfile("READ ","logfilename");
             }
             else perror("Environment variable not set. -v argument will be ignored\n\n\n");
         }
@@ -222,8 +223,8 @@ void treat_dir(char path[], struct argFlags arg_flags)
 
 void print_logfile(const char* act,const char* act2)
 {
-    if (!logfile) return;
-    char * newstr;
+    if (!printlogfile) return;
+    char newstr[255];
     strcpy(newstr,act);
     strcat(newstr,act2);
     struct timespec spec;
@@ -238,13 +239,13 @@ void print_logfile(const char* act,const char* act2)
 
     FILE* f=fopen(logfilename, "a");
 
-    long to_print=s_start-s_end;
-    to_print=to_print*3;
+    long to_print=s_end-s_start;
+    to_print=to_print*1.0e3;
     to_print+=ms_start;
     to_print-=ms_end;
     //2 casas decimais
     to_print=round(to_print*2);
     to_print=to_print/2;
 
-    fprintf(f, "%ld - %d - %s\n", to_print, getpid(), act);
+    fprintf(f, "%ld - %d - %s\n", to_print, getpid(), newstr);
 }
