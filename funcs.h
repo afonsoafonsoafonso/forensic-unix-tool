@@ -20,4 +20,4 @@ extern int s_start;
 struct argFlags arg_parser(int argc, char** argv);
 void treat_dir(char path[], struct argFlags arg_flags);
 void print_file_data(const char *file, struct argFlags arg_flags);
-void print_logfile(const char* act,const char* act2);
+void print_logfile(const char* act,const char* act2, struct argFlags arg_flags);

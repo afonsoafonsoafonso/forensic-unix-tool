@@ -42,8 +42,10 @@ int main(int argc, char* argv[])
     
     //PERGUNTA:é suposto apagar o antigo?
     if (arg_flags.logfile){//empties previously existing file
-        FILE* f=fopen(arg_flags.logfile_name, "w");
-        fclose(f);
+        //FILE* f=fopen(arg_flags.logfile_name, "w");
+        //fclose(f);
+        FILE* f=fopen(arg_flags.logfile_name, "a");
+        arg_flags.f=f;
     }
 
     int fd_outfile;
@@ -65,6 +67,6 @@ int main(int argc, char* argv[])
         printf("Given path is not a folder.\n");
 
     treat_dir(argv[argc-1],arg_flags);
-
+    if (arg_flags.logfile){fclose(arg_flags.f);}
     exit(0);
 }

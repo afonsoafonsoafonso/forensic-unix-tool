@@ -15,10 +15,8 @@
 
 long ms_start = 0;
 int s_start = 0;
-int printlogfile;
-char logfilename[255];
 
-void print_logfile(const char* act,const char* act2);
+void print_logfile(const char* act,const char* act2, struct argFlags arg_flags);
 
 // TO-DO: mais tarde mudar esta função (e outras) para outro ficheiro com respetivo header
 //adicionar também verificação de argumentos válidos
@@ -28,6 +26,7 @@ struct argFlags arg_parser(int argc, char** argv) {
     int i;
     int r_can=1, h_can=1, o_can=1;
     for(i=1; i<argc-1; i++) {
+
         if(r_can && (strcmp(argv[i],"-r")==0)) {
             arg_flags.dir_full_search=1;
         }
@@ -60,13 +59,14 @@ struct argFlags arg_parser(int argc, char** argv) {
             r_can=0;
             h_can=0;
             o_can=0;
+            
             if(getenv("LOGFILENAME")!=NULL ) {
                 
                 strcpy(arg_flags.logfile_name,getenv("LOGFILENAME")); 
                 arg_flags.logfile=1;
-                printlogfile=1;
-                strcpy(logfilename,arg_flags.logfile_name);
-                print_logfile("READ ","logfilename");
+                arg_flags.f=fopen(arg_flags.logfile_name,"a");
+                print_logfile("READ ","logfilename",arg_flags);
+                fclose(arg_flags.f);
             }
             else perror("Environment variable not set. -v argument will be ignored\n\n\n");
         }
@@ -83,7 +83,9 @@ struct argFlags arg_parser(int argc, char** argv) {
         exit(3);
     }
     strcpy(arg_flags.path,argv[argc-1]);
-    print_logfile("READ ","command flags");
+    arg_flags.f=fopen(arg_flags.logfile_name,"a");
+    print_logfile("READ ","command flags",arg_flags);
+    fclose(arg_flags.f);
     return arg_flags;
 }
 
@@ -172,7 +174,7 @@ void print_file_data(const char* path, struct argFlags arg_flags) {
     }
 
     printf("\n");
-    print_logfile("ANALIZED ",path);
+    print_logfile("ANALIZED ",path,arg_flags);
     return;
 }
 
@@ -215,15 +217,15 @@ void treat_dir(char path[], struct argFlags arg_flags)
             wait(NULL);
         }
         closedir(dr);
-        print_logfile("ANALIZED DIRECTORY ",path);
+        print_logfile("ANALIZED DIRECTORY ",path,arg_flags);
     }
     else
         print_file_data(path, arg_flags);
 }
 
-void print_logfile(const char* act,const char* act2)
+void print_logfile(const char* act,const char* act2, struct argFlags arg_flags)
 {
-    if (!printlogfile) return;
+    if (!arg_flags.logfile) return;
     char newstr[255];
     strcpy(newstr,act);
     strcat(newstr,act2);
@@ -237,7 +239,7 @@ void print_logfile(const char* act,const char* act2)
         ms_end -= 1000;
     }
 
-    FILE* f=fopen(logfilename, "a");
+    //FILE* f=fopen(arg_flags.logfile_name, "a");
 
     long to_print=s_end-s_start;
     to_print*=1.0e3;
@@ -247,5 +249,5 @@ void print_logfile(const char* act,const char* act2)
     to_print=round(to_print*2);
     to_print=to_print/2;
 
-    fprintf(f, "%ld - %d - %s\n", to_print, getpid(), newstr);
+    fprintf(arg_flags.f, "%ld - %d - %s\n", to_print, getpid(), newstr);
 }
