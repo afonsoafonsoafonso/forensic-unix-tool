@@ -30,7 +30,6 @@ void sigusr2_handler(int signo) {
     printf("In SIGUSR2 handler ...\n");
     print_logfile("Signal ","SIGUSR2");
     arg_flags.filecount++;
-    printf("New file: %d/%d directories/files at this time.\n",arg_flags.dircount,arg_flags.filecount);
 
 } 
 
@@ -137,6 +136,7 @@ void print_file_data(const char* path){//, struct argFlags arg_flags) {
     char buf[100];
     read(fd[0], &buf, 100);
     int l=strlen(buf);
+    //memset(buf, 0, 100);
     memmove(buf, buf + strlen(path)+2, l-strlen(path)-2+1);
     buf[strlen(buf)-1]='\0';
     printf("%s,",buf);
@@ -217,7 +217,7 @@ void treat_dir(char path[])//, struct argFlags arg_flags)
     fflush(arg_flags.f);
     if (is_dir(path))
     {
-        if (strcmp(arg_flags.path,path))kill(getpid(),SIGUSR1);
+        if (strcmp(arg_flags.path,path))kill(getppid(),SIGUSR1);
         struct dirent *de;  
         DIR *dr = opendir(path); 
         if (dr == NULL)
@@ -256,7 +256,7 @@ void treat_dir(char path[])//, struct argFlags arg_flags)
         print_logfile("ANALIZED DIRECTORY ",path);//,arg_flags);
     }
     else{
-        kill(getpid(),SIGUSR2);
+        kill(getppid(),SIGUSR2);
         print_file_data(path);//, arg_flags);
 
     fprintf(arg_flags.f,"filecount2 : %d\n",arg_flags.filecount);
