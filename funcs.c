@@ -67,9 +67,8 @@ void arg_parser(int argc, char** argv) {
                 
                 strcpy(arg_flags.logfile_name,getenv("LOGFILENAME")); 
                 arg_flags.logfile=1;
-                arg_flags.f=fopen(arg_flags.logfile_name,"a");
+                arg_flags.f=fopen(arg_flags.logfile_name,"w");
                 print_logfile("READ ","logfilename");//,arg_flags);
-                fclose(arg_flags.f);
             }
             else perror("Environment variable not set. -v argument will be ignored\n\n\n");
         }
@@ -86,9 +85,7 @@ void arg_parser(int argc, char** argv) {
         exit(3);
     }
     strcpy(arg_flags.path,argv[argc-1]);
-    arg_flags.f=fopen(arg_flags.logfile_name,"a");
     print_logfile("READ ","command flags");//,arg_flags);
-    fclose(arg_flags.f);
     return ;//arg_flags;
 }
 
@@ -247,8 +244,7 @@ void print_logfile(const char* act,const char* act2)//, struct argFlags arg_flag
     struct timespec spec;
     clock_gettime(CLOCK_REALTIME, &spec);
     int s_end = spec.tv_sec;
-    long ms_end = spec.tv_nsec; // 1.0e6; // Convert nanoseconds to milliseconds
-
+    long ms_end = spec.tv_nsec; 
     //FILE* f=fopen(arg_flags.logfile_name, "a");
 
     float to_print=(s_end-s_start);

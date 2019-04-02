@@ -49,14 +49,6 @@ int main(int argc, char* argv[])
     //arg_flags=
     arg_parser(argc,argv);
     //arg_parser_test(arg_flags);
-    
-    //PERGUNTA:é suposto apagar o antigo?
-    if (arg_flags.logfile){//empties previously existing file
-        //FILE* f=fopen(arg_flags.logfile_name, "w");
-        //fclose(f);
-        FILE* f=fopen(arg_flags.logfile_name, "a");
-        arg_flags.f=f;
-    }
 
     int fd_outfile;
     //checking for output file
