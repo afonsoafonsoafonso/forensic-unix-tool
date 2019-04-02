@@ -14,20 +14,38 @@
 #include "utils.h"
 
 long ms_start = 0;
-int s_start = 0;
 struct argFlags arg_flags = {0};
+int s_start = 0;
 
 void print_logfile(const char* act,const char* act2);//, struct argFlags arg_flags);
+
+void sigusr1_handler(int signo) {  
+    printf("In SIGUSR1 handler ...\n");
+    print_logfile("Signal ","SIGUSR1");
+    arg_flags.dircount++;
+    printf("New directory: %d/%d directories/files at this time.\n",arg_flags.dircount,arg_flags.filecount);
+} 
+
+void sigusr2_handler(int signo) {  
+    printf("In SIGUSR2 handler ...\n");
+    print_logfile("Signal ","SIGUSR2");
+    arg_flags.filecount++;
+    printf("New file: %d/%d directories/files at this time.\n",arg_flags.dircount,arg_flags.filecount);
+
+} 
 
 // TO-DO: mais tarde mudar esta função (e outras) para outro ficheiro com respetivo header
 //adicionar também verificação de argumentos válidos
 //struct argFlags
-void arg_parser(int argc, char** argv) {
+void arg_parser(int argc, char** argv) {//setenv
     //struct argFlags arg_flags = {0};
+    
     char *token;
     int i;
     int r_can=1, h_can=1, o_can=1;
     arg_flags.end=0;
+    arg_flags.dircount=0;
+    arg_flags.filecount=0;
     for(i=1; i<argc-1; i++) {
 
         if(r_can && (strcmp(argv[i],"-r")==0)) {
@@ -93,6 +111,7 @@ void print_file_data(const char* path){//, struct argFlags arg_flags) {
     if (arg_flags.end)return;
     struct stat fs; //fs: file_stat
     stat(path,&fs);
+    fprintf(arg_flags.f,"filecount2.5: %d\n",arg_flags.filecount);
 
     //prints file name
     printf("%s,",path);
@@ -151,6 +170,7 @@ void print_file_data(const char* path){//, struct argFlags arg_flags) {
     strftime(second,255,"\%S",mt);
     printf("%d-%s-%sT%s:%s:%s,", mt->tm_year+1900,month,day,hour,minute,second);// mt->tm_mon+1, mt->tm_mday, mt->tm_hour, mt->tm_min, mt->tm_sec);
     
+    
     //running hash calculations
     if(arg_flags.hash_calc && !is_dir(path)) {
         char hash[300];
@@ -193,8 +213,11 @@ void print_file_data(const char* path){//, struct argFlags arg_flags) {
 void treat_dir(char path[])//, struct argFlags arg_flags)
 {   
     if (arg_flags.end)return;
+    fprintf(arg_flags.f,"filecount: %d\n",arg_flags.filecount);
+    fflush(arg_flags.f);
     if (is_dir(path))
     {
+        if (strcmp(arg_flags.path,path))kill(getpid(),SIGUSR1);
         struct dirent *de;  
         DIR *dr = opendir(path); 
         if (dr == NULL)
@@ -220,9 +243,10 @@ void treat_dir(char path[])//, struct argFlags arg_flags)
                     perror("Error in changing directory.\n");
                     exit(7);
                 }
-                if (arg_flags.dir_full_search)
+                if (arg_flags.dir_full_search){
                     treat_dir(de->d_name);//, arg_flags);
-                else   
+                    fprintf(arg_flags.f,"filecount1.5: %d\n",arg_flags.filecount);
+                }else   
                     print_file_data(de->d_name);//, arg_flags);
                 exit(0);
             }
@@ -231,8 +255,12 @@ void treat_dir(char path[])//, struct argFlags arg_flags)
         closedir(dr);
         print_logfile("ANALIZED DIRECTORY ",path);//,arg_flags);
     }
-    else
+    else{
+        kill(getpid(),SIGUSR2);
         print_file_data(path);//, arg_flags);
+
+    fprintf(arg_flags.f,"filecount2 : %d\n",arg_flags.filecount);
+    }
 }
 
 void print_logfile(const char* act,const char* act2)//, struct argFlags arg_flags)
@@ -255,5 +283,6 @@ void print_logfile(const char* act,const char* act2)//, struct argFlags arg_flag
     
     to_print=to_print/1.0e6;
 
-    fprintf(arg_flags.f, "%.2f - %d - %s\n", to_print, getpid(), newstr);
+    fprintf(arg_flags.f, "%.2f - %d - %d - %s\n", to_print,arg_flags.filecount, getpid(), newstr);
+    fflush(arg_flags.f);
 }

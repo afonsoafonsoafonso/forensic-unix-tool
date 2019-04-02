@@ -18,6 +18,8 @@ extern long ms_start;
 extern int s_start;
 extern struct argFlags arg_flags;
 
+void sigusr1_handler(int signo);
+void sigusr2_handler(int signo);
 //struct argFlags 
 void arg_parser(int argc, char** argv);
 void treat_dir(char path[]);//, struct argFlags arg_flags);

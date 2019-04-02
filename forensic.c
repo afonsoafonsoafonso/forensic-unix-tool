@@ -26,14 +26,27 @@ void sigint_handler(int signo) {
 
 int main(int argc, char* argv[])
 {
-    struct sigaction action;
-    action.sa_handler=sigint_handler;
-    action.sa_flags=SA_RESTART;
-    sigemptyset(&action.sa_mask);
-    if (sigaction(SIGINT,&action,NULL) < 0)   {
+    struct sigaction ctrl_c;
+    ctrl_c.sa_handler=sigint_handler;
+    ctrl_c.sa_flags=SA_RESTART;
+    sigemptyset(&ctrl_c.sa_mask);
+    if (sigaction(SIGINT,&ctrl_c,NULL) < 0)   {
         fprintf(stderr,"Unable to install SIGINT handler\n");     
         exit(1);   }   
-
+    struct sigaction SIGDIR;
+    SIGDIR.sa_handler=sigusr1_handler;
+    SIGDIR.sa_flags=SA_RESTART;
+    sigemptyset(&SIGDIR.sa_mask);
+    if (sigaction(SIGUSR1,&SIGDIR,NULL) < 0)   {
+        fprintf(stderr,"Unable to install SIGUSR1 handler\n");     
+        exit(1);   }  
+    struct sigaction SIGFILE;
+    SIGFILE.sa_handler=sigusr2_handler;
+    SIGFILE.sa_flags=SA_RESTART;
+    sigemptyset(&SIGFILE.sa_mask);
+    if (sigaction(SIGUSR2,&SIGFILE,NULL) < 0)   {
+        fprintf(stderr,"Unable to install SIGUSR2 handler\n");     
+        exit(1);   }  
     //get current time for logfile
     struct timespec spec;
     clock_gettime(CLOCK_REALTIME, &spec);
