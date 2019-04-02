@@ -38,11 +38,8 @@ int main(int argc, char* argv[])
     struct timespec spec;
     clock_gettime(CLOCK_REALTIME, &spec);
     s_start = spec.tv_sec;
-    ms_start = spec.tv_nsec / 1.0e6; // Convert nanoseconds to milliseconds
-    while(ms_start > 999) {
-        s_start++;
-        ms_start -= 1000;
-    }
+    ms_start = spec.tv_nsec; // 1.0e6; // Convert nanoseconds to milliseconds
+
 
     if (argc < 2 || argc>8)
     {

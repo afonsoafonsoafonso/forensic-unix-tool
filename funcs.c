@@ -92,7 +92,6 @@ void arg_parser(int argc, char** argv) {
     return ;//arg_flags;
 }
 
- //TODO fix date lenght/use strftime
 void print_file_data(const char* path){//, struct argFlags arg_flags) {
     if (arg_flags.end)return;
     struct stat fs; //fs: file_stat
@@ -137,12 +136,23 @@ void print_file_data(const char* path){//, struct argFlags arg_flags) {
     printf(",");
 
     //prints dates
+    char month[255],day[255],hour[255],minute[255],second[255];
     struct tm *at;
     at=gmtime(&fs.st_atime);
-    printf("%d-%d-%dT%d:%d:%d,", at->tm_year+1900, at->tm_mon+1, at->tm_mday, at->tm_hour, at->tm_min, at->tm_sec);
+    strftime(month,255,"\%m",at);
+    strftime(day,255,"\%d",at);
+    strftime(hour,255,"\%H",at);
+    strftime(minute,255,"\%M",at);
+    strftime(second,255,"\%S",at);
+    printf("%d-%s-%sT%s:%s:%s,", at->tm_year+1900,month,day,hour,minute,second);// at->tm_mon+1, at->tm_mday, at->tm_hour, at->tm_min, at->tm_sec);
     struct tm *mt;
     mt=gmtime(&fs.st_mtime);
-    printf("%d-%d-%dT%d:%d:%d", mt->tm_year+1900, mt->tm_mon+1, mt->tm_mday, mt->tm_hour, mt->tm_min, mt->tm_sec);
+    strftime(month,255,"\%m",mt);
+    strftime(day,255,"\%d",mt);
+    strftime(hour,255,"\%H",mt);
+    strftime(minute,255,"\%M",mt);
+    strftime(second,255,"\%S",mt);
+    printf("%d-%s-%sT%s:%s:%s,", mt->tm_year+1900,month,day,hour,minute,second);// mt->tm_mon+1, mt->tm_mday, mt->tm_hour, mt->tm_min, mt->tm_sec);
     
     //running hash calculations
     if(arg_flags.hash_calc && !is_dir(path)) {
@@ -237,22 +247,23 @@ void print_logfile(const char* act,const char* act2)//, struct argFlags arg_flag
     struct timespec spec;
     clock_gettime(CLOCK_REALTIME, &spec);
     int s_end = spec.tv_sec;
-    long ms_end = spec.tv_nsec / 1.0e6; // Convert nanoseconds to milliseconds
-    while (ms_end > 999)
-    {
-        s_end++;
-        ms_end -= 1000;
-    }
+    long ms_end = spec.tv_nsec; // 1.0e6; // Convert nanoseconds to milliseconds
 
     //FILE* f=fopen(arg_flags.logfile_name, "a");
 
-    long to_print=s_end-s_start;
-    to_print*=1.0e3;
-    to_print-=ms_start;
+    long long to_print=(s_end-s_start);
+    to_print*=1.0e9;
+   
     to_print+=ms_end;
-    //2 casas decimais
-    to_print=round(to_print*2);
-    to_print=to_print/2;
+    to_print-=ms_start;
+//TODO está a perder a parte decimal
+    printf("1 %ld\n",to_print);
+    to_print=0.0001*to_print;
 
-    fprintf(arg_flags.f, "%ld - %d - %s\n", to_print, getpid(), newstr);
+    printf("2 %ld\n",to_print);
+    //2 casas decimais
+    to_print=round(to_print);
+    to_print=to_print/100.0;
+
+    fprintf(arg_flags.f, "%lld - %d - %s\n", to_print, getpid(), newstr);
 }
