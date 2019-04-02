@@ -251,19 +251,13 @@ void print_logfile(const char* act,const char* act2)//, struct argFlags arg_flag
 
     //FILE* f=fopen(arg_flags.logfile_name, "a");
 
-    long long to_print=(s_end-s_start);
+    float to_print=(s_end-s_start);
     to_print*=1.0e9;
    
     to_print+=ms_end;
     to_print-=ms_start;
-//TODO está a perder a parte decimal
-    printf("1 %ld\n",to_print);
-    to_print=0.0001*to_print;
+    
+    to_print=to_print/1.0e6;
 
-    printf("2 %ld\n",to_print);
-    //2 casas decimais
-    to_print=round(to_print);
-    to_print=to_print/100.0;
-
-    fprintf(arg_flags.f, "%lld - %d - %s\n", to_print, getpid(), newstr);
+    fprintf(arg_flags.f, "%.2f - %d - %s\n", to_print, getpid(), newstr);
 }
