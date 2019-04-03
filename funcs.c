@@ -87,7 +87,10 @@ void arg_parser(int argc, char** argv) {//setenv
                 arg_flags.f=fopen(arg_flags.logfile_name,"w");
                 print_logfile("READ ","logfilename");//,arg_flags);
             }
-            else perror("Environment variable not set. -v argument will be ignored\n\n\n");
+            else {
+                arg_flags.logfile=0;
+                perror("Environment variable not set. -v argument will be ignored\n\n\n");
+            }
         }
 
         else
@@ -110,8 +113,6 @@ void print_file_data(const char* path){//, struct argFlags arg_flags) {
     if (arg_flags.end)return;
     struct stat fs; //fs: file_stat
     stat(path,&fs);
-    fprintf(arg_flags.f,"filecount2.5: %d\n",arg_flags.filecount);
-
     //prints file name
     printf("%s,",path);
 
@@ -212,8 +213,7 @@ void print_file_data(const char* path){//, struct argFlags arg_flags) {
 
 void treat_dir(char path[])//, struct argFlags arg_flags)
 {   
-    if (arg_flags.end)return;
-    fprintf(arg_flags.f,"filecount: %d\n",arg_flags.filecount);
+    if (arg_flags.end)return;      
     fflush(arg_flags.f);
     if (is_dir(path))
     {
@@ -245,7 +245,6 @@ void treat_dir(char path[])//, struct argFlags arg_flags)
                 }
                 if (arg_flags.dir_full_search){
                     treat_dir(de->d_name);//, arg_flags);
-                    fprintf(arg_flags.f,"filecount1.5: %d\n",arg_flags.filecount);
                 }else   
                     print_file_data(de->d_name);//, arg_flags);
                 exit(0);
@@ -258,14 +257,13 @@ void treat_dir(char path[])//, struct argFlags arg_flags)
     else{
         kill(getppid(),SIGUSR2);
         print_file_data(path);//, arg_flags);
-
-    fprintf(arg_flags.f,"filecount2 : %d\n",arg_flags.filecount);
     }
 }
 
 void print_logfile(const char* act,const char* act2)//, struct argFlags arg_flags)
 {
-    if (!arg_flags.logfile) return;
+    if (!arg_flags.logfile)
+        return;
     char newstr[255];
     strcpy(newstr,act);
     strcat(newstr,act2);
