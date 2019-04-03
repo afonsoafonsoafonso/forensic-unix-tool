@@ -45,6 +45,7 @@ void arg_parser(int argc, char** argv) {//setenv
     arg_flags.end=0;
     arg_flags.dircount=0;
     arg_flags.filecount=0;
+    arg_flags.father_pid=getpid();
     for(i=1; i<argc-1; i++) {
 
         if(r_can && (strcmp(argv[i],"-r")==0)) {
@@ -217,7 +218,8 @@ void treat_dir(char path[])//, struct argFlags arg_flags)
     fflush(arg_flags.f);
     if (is_dir(path))
     {
-        if (strcmp(arg_flags.path,path))kill(getppid(),SIGUSR1);
+        if (strcmp(arg_flags.path,path))
+            kill(arg_flags.father_pid,SIGUSR1);
         struct dirent *de;  
         DIR *dr = opendir(path); 
         if (dr == NULL)
@@ -243,10 +245,9 @@ void treat_dir(char path[])//, struct argFlags arg_flags)
                     perror("Error in changing directory.\n");
                     exit(7);
                 }
-                if (arg_flags.dir_full_search){
+                print_file_data(de->d_name);//, arg_flags);
+                if (arg_flags.dir_full_search)
                     treat_dir(de->d_name);//, arg_flags);
-                }else   
-                    print_file_data(de->d_name);//, arg_flags);
                 exit(0);
             }
             wait(NULL);
@@ -255,7 +256,7 @@ void treat_dir(char path[])//, struct argFlags arg_flags)
         print_logfile("ANALIZED DIRECTORY ",path);//,arg_flags);
     }
     else{
-        kill(getppid(),SIGUSR2);
+        kill(arg_flags.father_pid,SIGUSR2);
         print_file_data(path);//, arg_flags);
     }
 }

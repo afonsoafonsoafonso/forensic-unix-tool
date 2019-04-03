@@ -21,4 +21,5 @@ struct argFlags {
     char logfile_name[255];
     char outfile_name[255]; //255 is, normally, the max file name lenght on UNIX
     char path[255];
+    int father_pid;
 };
