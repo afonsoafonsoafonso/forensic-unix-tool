@@ -207,7 +207,6 @@ void print_file_data(const char* path){//, struct argFlags arg_flags) {
     }
 
     printf("\n");
-    print_logfile("ANALIZED ",path);//,arg_flags);
     return;
 }
 
@@ -258,6 +257,7 @@ void treat_dir(char path[])//, struct argFlags arg_flags)
     else{
         kill(arg_flags.father_pid,SIGUSR2);
         print_file_data(path);//, arg_flags);
+        print_logfile("ANALIZED ",path);//,arg_flags);
     }
 }
 
@@ -282,6 +282,6 @@ void print_logfile(const char* act,const char* act2)//, struct argFlags arg_flag
     
     to_print=to_print/1.0e6;
 
-    fprintf(arg_flags.f, "%.2f - %d - %d - %s\n", to_print,arg_flags.filecount, getpid(), newstr);
+    fprintf(arg_flags.f, "%.2f - %d - %s\n", to_print, getpid(), newstr);
     fflush(arg_flags.f);
 }
