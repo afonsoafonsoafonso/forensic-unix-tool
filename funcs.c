@@ -9,6 +9,7 @@
 #include <time.h>
 #include <math.h>
 #include <dirent.h>
+#include <limits.h>
 
 #include "flags.h"
 #include "utils.h"
@@ -135,8 +136,8 @@ void print_file_data(const char* path){//, struct argFlags arg_flags) {
         exit(5);
     }
     close(fd[1]);
-    char buf[100];
-    read(fd[0], &buf, 100);
+    char buf[PATH_MAX];
+    read(fd[0], &buf, PATH_MAX);
     int l=strlen(buf);
     //memset(buf, 0, 100);
     memmove(buf, buf + strlen(path)+2, l-strlen(path)-2+1);
